@@ -12,7 +12,6 @@ public class Producer extends Thread {
         System.out.println("Producer running!");
         try {
             prodConsBuffer.put(new Message(seqNumber++, this.getId()));
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
