@@ -8,6 +8,7 @@ public class TestProdCons {
     public Properties properties;
     public int buffSize;
     public ProdConsBuffer prodConsBuffer;
+    public int consTime, prodTime, minProd, maxProd;
 
     public TestProdCons() throws IOException {
         properties = new Properties();
@@ -15,10 +16,14 @@ public class TestProdCons {
         nProd = Integer.parseInt(properties.getProperty("nProd"));
         nCons = Integer.parseInt(properties.getProperty("nCons"));
         buffSize = Integer.parseInt(properties.getProperty("bufSz"));
-        prodConsBuffer = new ProdConsBuffer(buffSize);
+        consTime = Integer.parseInt(properties.getProperty("consTime"));
+        prodTime = Integer.parseInt(properties.getProperty("prodTime"));
+        minProd = Integer.parseInt(properties.getProperty("minProd"));
+        maxProd = Integer.parseInt(properties.getProperty("maxProd"));
+        prodConsBuffer = new ProdConsBuffer(buffSize, consTime, prodTime, minProd, maxProd);
     }
 
-    public void main() throws InterruptedException {
+    public void run() throws InterruptedException {
         System.out.println("Creating consumers producers");
         Consumer[] consumers = new Consumer[nCons];
         Producer[] producers = new Producer[nProd];
@@ -33,13 +38,12 @@ public class TestProdCons {
             p.start();
         }
 
-        for (int i = 0; i < 100; i++) {
-            Consumer c = consumers[i];
-            Producer p = producers[i];
-
-            c.join();
-            p.join();
+        for (int i = 0; i < nProd; i++) {
+            producers[i].join();
         }
 
+        for(int i = 0; i < nCons; i++){
+            consumers[i].join();
+        }
     }
 }

@@ -1,4 +1,7 @@
 package prodcons.v1;
+
+import java.util.Random;
+
 public class Producer extends Thread {
 
     ProdConsBuffer prodConsBuffer;
@@ -9,9 +12,16 @@ public class Producer extends Thread {
     }
 
     public void run() {
-        System.out.println("Producer running!");
+        int maxProd = prodConsBuffer.maxProd;
+        int minProd = prodConsBuffer.minProd;
+        int n = new Random().nextInt(maxProd - minProd) - minProd;
+
         try {
-            prodConsBuffer.put(new Message(seqNumber++, this.getId()));
+            for (int i = 0; i < n; i++) {
+                prodConsBuffer.put(new Message(seqNumber++, this.getId()));
+                Thread.sleep(prodConsBuffer.prodTime);
+            }
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

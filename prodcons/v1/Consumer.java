@@ -10,7 +10,10 @@ public class Consumer extends Thread {
 
     public void run() {
         try {
-            msg = prodConsBuffer.get();
+            while(true){
+                msg = prodConsBuffer.get();
+                Thread.sleep(prodConsBuffer.consTime);
+            }
             
         } catch (Exception e) {
             System.out.println(e.getMessage());

@@ -6,8 +6,15 @@ public class ProdConsBuffer implements IProdConsBuffer {
     public int nfull, nempty;
     public int in, out;
     public final Message[] buff;
+    public int consTime, prodTime, minProd, maxProd;
 
-    public ProdConsBuffer(int bufSize) {
+    public ProdConsBuffer(int bufSize, int consTime, int prodTime, int minProd, int maxProd) {
+
+        this.consTime = consTime;
+        this.prodTime = prodTime;
+        this.minProd = minProd;
+        this.maxProd = maxProd;
+        
         buff = new Message[bufSize];
         nempty = 0;
         nfull = bufSize;
@@ -23,26 +30,25 @@ public class ProdConsBuffer implements IProdConsBuffer {
         in = (in + 1) % buff.length;
         nempty++;
         nfull--;
-        notifyAll();
         System.out.println("Produtor: " + m.prodId + ". Produziu msg");
         printBuff();
+        notifyAll();
     }
 
     @Override
     public synchronized Message get() throws InterruptedException {
-        System.out.println(nempty);
         while (nempty == 0){
             System.out.println("Consumidor aguardando ");
-            wait();
+            wait(); // aqui a thread atual solta o lock. quando alguem chama notify, ele pega o lock de novo
         }
         Message msg = buff[out];
         buff[out] = null;
-        // out = (out + 1) % buff.length;
+        out = (out + 1) % buff.length;
         nfull++;
         nempty--;
-        notifyAll();
+        System.out.println("Consumidor consumiu : " + msg.seq);
         printBuff();
-        System.out.println("Consumidor consumiu thank you sir");
+        notifyAll();
         return msg;
     }
 
