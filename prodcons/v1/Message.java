@@ -1,3 +1,4 @@
+package prodcons.v1;
 public class Message {
     public final int seq;
     public final long prodId;

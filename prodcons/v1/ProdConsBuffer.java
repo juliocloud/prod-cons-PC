@@ -1,9 +1,13 @@
+package prodcons.v1;
+
+import java.util.Objects;
+
 public class ProdConsBuffer implements IProdConsBuffer {
     public int nfull = 0, nempty;
     public int in, out;
     public final Message[] buff;
 
-    public ProdConsBuffer(int bufSize){
+    public ProdConsBuffer(int bufSize) {
         buff = new Message[bufSize];
         nempty = bufSize;
     }
@@ -11,7 +15,8 @@ public class ProdConsBuffer implements IProdConsBuffer {
     @Override
     public synchronized void put(Message m) throws InterruptedException {
         System.out.println("Waiting put");
-        while (nempty == 0) wait();
+        while (nfull == buff.length)
+            wait();
         buff[in] = m;
         in = (in + 1) % buff.length;
         nempty--;
@@ -24,12 +29,13 @@ public class ProdConsBuffer implements IProdConsBuffer {
     @Override
     public synchronized Message get() throws InterruptedException {
         System.out.println("Waiting get");
-        while (nempty == 0) wait();
+        while (nempty == 0)
+            wait();
         Message msg = buff[out];
         buff[out] = null;
-        out = (out + 1) % buff.length;
+        // out = (out + 1) % buff.length;
         nfull--;
-        nfull++;
+        nempty++;
         notifyAll();
         System.out.println("Consumed message.");
         printBuff();
@@ -47,11 +53,19 @@ public class ProdConsBuffer implements IProdConsBuffer {
         throw new UnsupportedOperationException("Unimplemented method 'totmsg'");
     }
 
-    public void printBuff(){
-        System.out.println("Buffer >");
-        for(Object o : buff){
-            System.out.println(o);
+    public void printBuff() {
+        System.out.println("------------ Buffer -----------");
+        for (Message o : buff) {
+            if (!Objects.isNull(o)) {
+                System.out.println("seq: " + o.seq);
+                System.out.println("prodId: " + o.prodId);
+            } else {
+                System.out.println("seq: empty");
+                System.out.println("prodId: empty");
+            }
         }
+
+        System.out.println("---------------------------");
     }
-    
+
 }
